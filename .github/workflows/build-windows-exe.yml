@@ -1,0 +1,44 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-windows-exe:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Compile application
+        shell: cmd
+        run: |
+          if not exist build mkdir build
+          javac -d build Main.java
+          jar --create --file build\CollegeManagementApplication.jar --main-class Main -C build .
+      - name: Create Windows EXE
+        shell: cmd
+        run: |
+          if not exist dist mkdir dist
+          jpackage ^
+            --type exe ^
+            --input build ^
+            --name CollegeManagementApplication ^
+            --main-jar CollegeManagementApplication.jar ^
+            --main-class Main ^
+            --app-version 1.0.0 ^
+            --win-shortcut ^
+            --win-menu ^
+            --dest dist
+      - name: Upload Windows EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: CollegeManagementApplication-Windows
+          path: dist/*.exe
+          if-no-files-found: error
