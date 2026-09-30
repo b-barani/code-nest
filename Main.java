@@ -17,6 +17,14 @@ public class Main {
         HashMap<Integer,String[]> map=new HashMap<>();
         void add(int id,String title,String author){String[] b={title,author}; list.add(new String[]{String.valueOf(id),title,author}); map.put(id,b);}
     }
+    static class EngineeringStudent extends Student {
+        EngineeringStudent(int id,String name,String course){super(id,name,course);}
+        @Override Object[] row(){return new Object[]{getId(),getName(),getCourse()+" (Engineering)"};}
+    }
+    static class ArtsStudent extends Student {
+        ArtsStudent(int id,String name,String course){super(id,name,course);}
+        @Override Object[] row(){return new Object[]{getId(),getName(),getCourse()+" (Arts)"};}
+    }
     static class Account {
         private String holder; private double balance;
         Account(String h,double b){holder=h;balance=b;}
@@ -44,7 +52,10 @@ public class Main {
         form.add(id);form.add(name);form.add(course);
         JButton add=button("Add Student"), clear=button("Clear");
         add.addActionListener(e->{try{int i=Integer.parseInt(id.getText());if(name.getText().isBlank()||course.getText().isBlank())throw new IllegalArgumentException();
-            students.add(new Student(i,name.getText(),course.getText()));m.addRow(students.get(students.size()-1).row());id.setText("");name.setText("");course.setText("");
+            Student s = course.getText().toLowerCase().contains("it") || course.getText().toLowerCase().contains("cse")
+                ? new EngineeringStudent(i,name.getText(),course.getText())
+                : new ArtsStudent(i,name.getText(),course.getText());
+            students.add(s);m.addRow(s.row());id.setText("");name.setText("");course.setText("");
         }catch(Exception ex){JOptionPane.showMessageDialog(p,"Enter valid student details.");}});
         clear.addActionListener(e->{id.setText("");name.setText("");course.setText("");});
         JPanel top=new JPanel(new BorderLayout(8,8));top.add(form,BorderLayout.CENTER);JPanel b=new JPanel();b.add(add);b.add(clear);top.add(b,BorderLayout.SOUTH);
